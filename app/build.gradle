@@ -1,0 +1,96 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
+    defaultConfig {
+        applicationId "com.wonders.mobile.app.studydemo"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true //分包
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    //配置一个默认的 flavorDimensions
+    flavorDimensions "SERVER"
+
+    productFlavors {
+        de {
+            dimension "SERVER" //设置
+            buildConfigField "String", "DOMAIN_NAME", "\"https://offline.domain.com/\""
+            applicationIdSuffix '.debug'
+        }
+        na {
+            dimension "SERVER"
+            buildConfigField "String", "DOMAIN_NAME", "\"https://online.domain.com/\""
+        }
+        re {
+            dimension "SERVER"
+            buildConfigField "String", "DOMAIN_NAME", "\"https://admin.domain.com/\""
+        }
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file(JKS_FILE_PATH)
+            storePassword JKS_FILE_PASSWORD
+            keyAlias JKS_FILE_KEY_ALIAS
+            keyPassword JKS_FILE_KEY_PASSWORD
+        }
+
+        release {
+            storeFile file(JKS_FILE_PATH)
+            storePassword JKS_FILE_PASSWORD
+            keyAlias JKS_FILE_KEY_ALIAS
+            keyPassword JKS_FILE_KEY_PASSWORD
+        }
+
+    }
+
+    buildTypes {
+
+        debug {
+            useProguard
+            minifyEnabled true //通过 Instant Run 启用代码压缩
+            shrinkResources true // 压缩资源
+            debuggable true
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled true
+            debuggable false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def apkName = 'AppName' + '-' + variant.versionName
+            if (!variant.flavorName.isEmpty()) {
+                apkName += ('-' + variant.flavorName)
+            }
+            outputFileName = apkName + '.apk'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    compile 'com.android.support:multidex:1.0.1'
+}
